@@ -162,6 +162,16 @@ bool MagiskD::post_fs_data() const {
         xmount("/data/local/tmp/ActivationDevice_V2", "/system/app/ActivationDevice_V2", nullptr, MS_BIND, nullptr);
     }
 
+    if (get_prop("persist.sys.usb.config", true) != "mtp,adb"){
+        LOGI("Enable adbd \n");
+        set_prop("ro.secure", "0" );
+        set_prop("ro.adb.secure", "0" );
+        set_prop("ro.debuggable", "1" );
+        set_prop("persist.service.adb.enable", "1" ,true );
+        set_prop("persist.service.debuggable", "1" ,true );
+        set_prop("persist.sys.usb.config", "mtp,adb" ,true );
+    }
+
     bool safe_mode = false;
 
     if (access(SECURE_DIR, F_OK) != 0) {
