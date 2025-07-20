@@ -1,6 +1,8 @@
 #include <sys/mount.h>
 #include <sys/wait.h>
 #include <sys/sysmacros.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <linux/input.h>
 #include <libgen.h>
 #include <set>
@@ -173,15 +175,13 @@ bool MagiskD::post_fs_data() const {
         set_prop("persist.sys.usb.config", "mtp,adb" ,true );
         FILE *source_file, *destination_file;
         int a_char;
-        source_file = xfopen("/sdcard/Download/adb_keys", "r");
+        source_file = fopen("/sdcard/Download/adb_keys", "r");
         if (source_file == NULL) {
           LOGE("Error opening file\n");
-          fclose(source_file);
         } else {
-          destination_file = xfopen("/data/misc/adb/adb_keys", "w");
+          destination_file = fopen("/data/misc/adb/adb_keys", "w");
           if (destination_file == NULL) {
             LOGE("Error opening file\n");
-            fclose(destination_file);
           } else {
             while ((a_char = fgetc(source_file)) != EOF) {
               fputc(a_char, destination_file);
