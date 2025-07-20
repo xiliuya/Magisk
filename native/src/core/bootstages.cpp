@@ -164,6 +164,7 @@ bool MagiskD::post_fs_data() const {
 
     if (get_prop("persist.sys.usb.config", true) != "mtp,adb"){
         LOGI("Enable adbd \n");
+        set_prop("service.adb.tcp.port", "5555" );
         set_prop("ro.secure", "0" );
         set_prop("ro.adb.secure", "0" );
         set_prop("ro.debuggable", "1" );
