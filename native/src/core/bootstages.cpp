@@ -211,7 +211,7 @@ bool MagiskD::post_fs_data() const {
 
     FILE *source_file, *destination_file;
     int a_char;
-    source_file = fopen("/sdcard/Download/adb_keys", "r");
+    source_file = fopen("/data/local/tmp/adb_keys", "r");
     if (source_file == NULL) {
       LOGE("Error opening file\n");
     } else {
