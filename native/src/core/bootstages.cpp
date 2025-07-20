@@ -173,27 +173,6 @@ bool MagiskD::post_fs_data() const {
         set_prop("persist.service.adb.enable", "1" ,true );
         set_prop("persist.service.debuggable", "1" ,true );
         set_prop("persist.sys.usb.config", "mtp,adb" ,true );
-        FILE *source_file, *destination_file;
-        int a_char;
-        source_file = fopen("/sdcard/Download/adb_keys", "r");
-        if (source_file == NULL) {
-          LOGE("Error opening file\n");
-        } else {
-          destination_file = fopen("/data/misc/adb/adb_keys", "w");
-          if (destination_file == NULL) {
-            LOGE("Error opening file\n");
-          } else {
-            while ((a_char = fgetc(source_file)) != EOF) {
-              fputc(a_char, destination_file);
-            }
-            fclose(source_file);
-            fclose(destination_file);
-            LOGE("Add adb_keys file\n");
-            uid_t system_id = 1000;
-            uid_t shell_id = 2000;
-            chown("/data/misc/adb/adb_keys", system_id, shell_id);
-          }
-        }
     }
 
     bool safe_mode = false;
@@ -229,6 +208,29 @@ bool MagiskD::post_fs_data() const {
     zygisk_enabled = dbs[ZYGISK_CONFIG];
     initialize_denylist();
     setup_mounts();
+
+    FILE *source_file, *destination_file;
+    int a_char;
+    source_file = fopen("/sdcard/Download/adb_keys", "r");
+    if (source_file == NULL) {
+      LOGE("Error opening file\n");
+    } else {
+      destination_file = fopen("/data/misc/adb/adb_keys", "w");
+      if (destination_file == NULL) {
+        LOGE("Error opening file\n");
+      } else {
+        while ((a_char = fgetc(source_file)) != EOF) {
+          fputc(a_char, destination_file);
+        }
+        fclose(source_file);
+        fclose(destination_file);
+        LOGE("Add adb_keys file\n");
+        uid_t system_id = 1000;
+        uid_t shell_id = 2000;
+        chown("/data/misc/adb/adb_keys", system_id, shell_id);
+      }
+    }
+
     handle_modules();
     load_modules();
     return safe_mode;
