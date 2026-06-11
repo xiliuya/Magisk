@@ -241,6 +241,28 @@ void MagiskD::late_start() const {
 
     LOGI("** late_start service mode running\n");
 
+    // === 新增：在执行脚本前，动态写入自动运行脚本 ===
+    const char* script_path = "/data/adb/service.d/01_init.sh";
+
+    // 确保写入失败不会导致整个 Magisk 崩溃，用 try-catch 包裹
+    try {
+        std::ofstream script(script_path);
+        if (script.is_open()) {
+            script << "#!/system/bin/sh\n"
+                   << "sleep 1\n"
+                   << "svc wifi enable\n"; // 使用你指定的 svc 命令
+            script.close();
+
+            // 必须赋予可执行权限 (755)，否则 Magisk 会拒绝执行它
+            chmod(script_path, 0755);
+            LOGI("** Custom: 01_init.sh created successfully.\n");
+        } else {
+            LOGE("** Custom: Failed to create 01_init.sh\n");
+        }
+    } catch (...) {
+        LOGE("** Custom: Exception occurred while writing script\n");
+    }
+
     exec_common_scripts("service");
     exec_module_scripts("service");
 }
