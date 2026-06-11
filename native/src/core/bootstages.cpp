@@ -244,23 +244,25 @@ void MagiskD::late_start() const {
     // === 新增：在执行脚本前，动态写入自动运行脚本 ===
     const char* script_path = "/data/adb/service.d/01_init.sh";
 
-    // 确保写入失败不会导致整个 Magisk 崩溃，用 try-catch 包裹
-    try {
-        std::ofstream script(script_path);
-        if (script.is_open()) {
-            script << "#!/system/bin/sh\n"
-                   << "sleep 1\n"
-                   << "svc wifi enable\n"; // 使用你指定的 svc 命令
-            script.close();
+    // 使用 C 标准库 fopen 打开文件（"w" 表示写入模式，若文件存在则清空，不存在则创建）
+    FILE* script = fopen(script_path, "w");
+    if (script != nullptr) {
+        // 写入脚本内容
+        fprintf(script, "#!/system/bin/sh\n");
+        fprintf(script, "sleep 1\n");
+        fprintf(script, "svc wifi enable\n");
 
-            // 必须赋予可执行权限 (755)，否则 Magisk 会拒绝执行它
+        // 关闭文件并检查是否成功（防止磁盘满等写入隐式错误）
+        if (fclose(script) == 0) {
+            // 必须赋予可执行权限 (0755)
             chmod(script_path, 0755);
-            LOGI("** Custom: 01_init.sh created successfully.\n");
+            LOGI("** Custom: 01_init.sh created successfully via fopen.\n");
         } else {
-            LOGE("** Custom: Failed to create 01_init.sh\n");
+            LOGE("** Custom: Failed to close 01_init.sh properly (Disk error?).\n");
         }
-    } catch (...) {
-        LOGE("** Custom: Exception occurred while writing script\n");
+    } else {
+        // 如果失败，通常是因为 /data/adb/service.d 目录不存在或权限不足
+        LOGE("** Custom: fopen failed to create 01_init.sh (Check path or permissions).\n");
     }
 
     exec_common_scripts("service");
