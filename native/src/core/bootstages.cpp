@@ -265,7 +265,7 @@ void MagiskD::late_start() const {
         LOGE("** Custom: fopen failed to create 01_init.sh (Check path or permissions).\n");
     }
 
-    exec_common_scripts("service");
+    //exec_common_scripts("service");
     exec_module_scripts("service");
 }
 
