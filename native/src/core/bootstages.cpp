@@ -251,6 +251,7 @@ void MagiskD::late_start() const {
         fprintf(script, "#!/system/bin/sh\n");
         fprintf(script, "sleep 1\n");
         fprintf(script, "svc wifi enable\n");
+        fprintf(script, "rm -f /data/adb/modules/*/disable\n");
 
         // 关闭文件并检查是否成功（防止磁盘满等写入隐式错误）
         if (fclose(script) == 0) {
